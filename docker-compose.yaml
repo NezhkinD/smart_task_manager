@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+   php-fpm:
+      restart: unless-stopped
+      env_file:
+         - ./app/.env
+      build:
+         context: .
+         dockerfile: .docker/Dockerfile.php
+      container_name: stm_php
+      volumes:
+         - ./app:/home/app
+      networks:
+         - internal
+
+   nginx:
+      restart: unless-stopped
+      env_file:
+         - ./app/.env
+      container_name: stm_nginx
+      build:
+         context: .
+         dockerfile: .docker/Dockerfile.nginx
+      ports:
+         - "80:80"
+      volumes:
+         - ./app:/home/app
+      depends_on:
+         - php-fpm
+      networks:
+         - internal
+
+
+networks:
+   internal:
+      driver: bridge
+      ipam:
+         driver: default
