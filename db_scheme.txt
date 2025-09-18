@@ -1,0 +1,117 @@
+// Create https://dbdiagram.io
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table user {
+  id integer [primary key]
+  username varchar [not null]
+  password varchar [not null]
+  roles user_role [not null, note: 'Массив значений enum']
+  email varchar
+  created_at timestamp [not null]
+  tg_id varchar
+}
+
+Table auth_token {
+  id integer [primary key]
+  user_id integer [not null]
+  access text [not null]
+  refresh text [not null]
+  expires_at timestamp [not null]
+}
+
+
+Table input_message {
+  id integer [primary key]
+  text text [not null, note: 'Входящее сообщение от пользователя или распознанный аудиофайл']
+  audio varchar [note: 'Путь до аудио файла, загруженного пользователем']
+  created_at timestamp [not null]
+  status input_message_status [not null]
+  user_id integer [not null]
+}
+
+Table event {
+  id integer [primary key]
+  title varchar [not null]
+  body text
+  created_at timestamp [not null]
+  start_at timestamp [not null, note: 'Дата начала']
+  end_at timestamp [not null, note: 'Дата окончания']
+  status event_status [not null]
+  type task_type [not null]
+  user_id integer [not null]
+  input_message_id integer [not null]
+}
+
+
+Table task {
+  id integer [primary key]
+  title varchar [not null]
+  body text [note: 'Content of the post']
+  created_at timestamp [not null]
+  date timestamp [not null, note: 'Дата задачи']
+  status task_status [not null]
+  user_id integer [not null]
+  input_message_id integer [not null]
+}
+
+Table application_settings {
+  id integer [primary key]
+  key varchar [not null]
+  value varchar [not null]
+  default varchar [not null]
+  description text [note: 'Content of the post']
+  created_at timestamp [not null]
+  type app_setting_data_type [not null]
+}
+
+Table integrations_access {
+  id integer [primary key]
+  name varchar [not null]
+  value text [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  user_id integer [not null]
+}
+
+
+
+enum user_role {
+  "admin"
+  "user"
+}
+
+
+enum event_status {
+  "created"
+  "fail"
+}
+
+enum task_status {
+  "created"
+  "done"
+  "fail"
+}
+
+enum input_message_status {
+  "created"
+  "recognized"
+  "fail"
+}
+
+enum app_setting_data_type {
+  "string"
+  "int"
+  "array"
+}
+
+
+
+Ref: user.id < input_message.user_id
+Ref: user.id < event.user_id
+Ref: user.id < task.user_id
+Ref: user.id < integrations_access.user_id
+Ref: user.id < auth_token.user_id
+Ref: input_message.id - event.input_message_id
+Ref: input_message.id - task.input_message_id
+
+
