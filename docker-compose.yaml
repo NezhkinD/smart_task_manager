@@ -30,6 +30,27 @@ services:
       networks:
          - internal
 
+   db:
+      image: postgres:17.6
+      env_file:
+         - ./app/.env
+      restart: unless-stopped
+      container_name: stm_db
+      environment:
+         POSTGRES_USER: user1
+         POSTGRES_PASSWORD: password1
+         POSTGRES_DB: stmdb
+      healthcheck:
+         test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+         timeout: 5s
+         retries: 5
+         start_period: 60s
+      ports:
+         - "5432:5432"
+      volumes:
+         - ./.db:/var/lib/postgresql/data
+      networks:
+         - internal
 
 networks:
    internal:
