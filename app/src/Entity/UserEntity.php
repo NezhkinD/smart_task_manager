@@ -45,38 +45,47 @@ class UserEntity
      * @var Collection<int, AuthTokenEntity>
      */
     #[ORM\OneToMany(targetEntity: AuthTokenEntity::class, mappedBy: 'userId')]
-    private Collection $authTokenEntities;
+    public Collection $authTokenEntities;
+
+    /**
+     * @var Collection<int, IntegrationsAccessEntity>
+     */
+    #[ORM\OneToMany(targetEntity: IntegrationsAccessEntity::class, mappedBy: 'userId')]
+    public Collection $integrationsAccessEntities;
+
+    /**
+     * @var Collection<int, EventEntity>
+     */
+    #[ORM\OneToMany(targetEntity: EventEntity::class, mappedBy: 'userId')]
+    public Collection $eventEntities;
+
+    /**
+     * @var Collection<int, TaskEntity>
+     */
+    #[ORM\OneToMany(targetEntity: TaskEntity::class, mappedBy: 'userId')]
+    public Collection $taskEntities;
+
+    /**
+     * @var Collection<int, InputMessageEntity>
+     */
+    #[ORM\OneToMany(targetEntity: InputMessageEntity::class, mappedBy: 'userId')]
+    public Collection $inputMessageEntities;
+
 
     public function __construct()
     {
         $this->authTokenEntities = new ArrayCollection();
-    }
-
-    /**
-     * @return Collection<int, AuthTokenEntity>
-     */
-    public function getAuthTokenEntities(): Collection
-    {
-        return $this->authTokenEntities;
+        $this->integrationsAccessEntities = new ArrayCollection();
+        $this->eventEntities = new ArrayCollection();
+        $this->taskEntities = new ArrayCollection();
+        $this->inputMessageEntities = new ArrayCollection();
     }
 
     public function addAuthTokenEntity(AuthTokenEntity $authTokenEntity): static
     {
         if (!$this->authTokenEntities->contains($authTokenEntity)) {
             $this->authTokenEntities->add($authTokenEntity);
-            $authTokenEntity->setUserId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAuthTokenEntity(AuthTokenEntity $authTokenEntity): static
-    {
-        if ($this->authTokenEntities->removeElement($authTokenEntity)) {
-            // set the owning side to null (unless already changed)
-            if ($authTokenEntity->getUserId() === $this) {
-                $authTokenEntity->setUserId(null);
-            }
+            $authTokenEntity->user = $this;
         }
 
         return $this;
