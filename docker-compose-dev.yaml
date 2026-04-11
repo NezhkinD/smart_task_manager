@@ -4,8 +4,12 @@ services:
       restart: unless-stopped
       env_file:
          - ./app/.env
-      image: ${DOCKER_REGISTRY}/stm/php:${TAG:-latest}
+      build:
+         context: .
+         dockerfile: .docker/Dockerfile.php
       container_name: stm_php
+      volumes:
+         - ./app:/home/app
       networks:
          - internal
 
@@ -14,9 +18,13 @@ services:
       env_file:
          - ./app/.env
       container_name: stm_nginx
-      image: ${DOCKER_REGISTRY}/stm/nginx:${TAG:-latest}
+      build:
+         context: .
+         dockerfile: .docker/Dockerfile.nginx
       ports:
          - "1242:80"
+      volumes:
+         - ./app:/home/app
       depends_on:
          - php-fpm
       networks:

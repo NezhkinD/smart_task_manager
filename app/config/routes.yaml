@@ -4,5 +4,5 @@
 #   bin/console debug:router
 
 controllers:
-    resource: attributes
-    type: tagged_services
+    resource: routing.controllers
+    type: routing.controllers

@@ -1,24 +1,35 @@
-PHP_CONTAINER_NAME=stm_php
+DOCKER_REGISTRY ?= localhost:5000
+TAG ?= latest
+PHP_CONTAINER_NAME = stm_php
 
-docker_up:
-	docker-compose up -d
+# === Dev ===
+dev-run:
+	docker-compose -f docker-compose-dev.yaml up -d --build
 
-docker_down:
-	docker-compose up -d
+dev-down:
+	docker-compose -f docker-compose-dev.yaml down
 
-docker_build:
-	docker-compose build
+# === Prod build & push ===
+build:
+	docker build -t $(DOCKER_REGISTRY)/stm/php:$(TAG) -f .docker/Dockerfile.php.prod .
+	docker build -t $(DOCKER_REGISTRY)/stm/nginx:$(TAG) -f .docker/Dockerfile.nginx.prod .
 
+push:
+	docker push $(DOCKER_REGISTRY)/stm/php:$(TAG)
+	docker push $(DOCKER_REGISTRY)/stm/nginx:$(TAG)
+
+release: build push
+
+# === Doctrine (dev) ===
 doctrine_make_entity:
-	docker exec -it ${PHP_CONTAINER_NAME} bash -c "php bin/console make:entity"
+	docker exec -it $(PHP_CONTAINER_NAME) bash -c "php bin/console make:entity"
 
 doctrine_make_migration:
-	docker exec -it ${PHP_CONTAINER_NAME} bash -c "php bin/console make:migration"
+	docker exec -it $(PHP_CONTAINER_NAME) bash -c "php bin/console make:migration"
 
 doctrine_migrate:
-	docker exec -it ${PHP_CONTAINER_NAME} bash -c "yes | php bin/console doctrine:migrations:migrate"
-
+	docker exec -it $(PHP_CONTAINER_NAME) bash -c "yes | php bin/console doctrine:migrations:migrate"
 
 unlock:
-	sudo chown -R ${USER}:${USER} ./app
+	sudo chown -R $(USER):$(USER) ./app
 	chmod 775 ./app
