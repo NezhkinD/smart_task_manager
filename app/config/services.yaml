@@ -31,3 +31,7 @@ services:
             $llmApiKey: '%env(LLM_API_KEY)%'
             $llmBaseUrl: '%env(LLM_BASE_URL)%'
             $llmModel: '%env(LLM_MODEL)%'
+
+    App\Service\TelegramBotService:
+        arguments:
+            $tgBotToken: '%env(TG_BOT_TOKEN)%'
