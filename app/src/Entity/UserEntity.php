@@ -44,31 +44,31 @@ class UserEntity
     /**
      * @var Collection<int, AuthTokenEntity>
      */
-    #[ORM\OneToMany(targetEntity: AuthTokenEntity::class, mappedBy: 'userId')]
+    #[ORM\OneToMany(targetEntity: AuthTokenEntity::class, mappedBy: 'user')]
     public Collection $authTokenEntities;
 
     /**
      * @var Collection<int, IntegrationsAccessEntity>
      */
-    #[ORM\OneToMany(targetEntity: IntegrationsAccessEntity::class, mappedBy: 'userId')]
+    #[ORM\OneToMany(targetEntity: IntegrationsAccessEntity::class, mappedBy: 'user')]
     public Collection $integrationsAccessEntities;
 
     /**
      * @var Collection<int, EventEntity>
      */
-    #[ORM\OneToMany(targetEntity: EventEntity::class, mappedBy: 'userId')]
+    #[ORM\OneToMany(targetEntity: EventEntity::class, mappedBy: 'user')]
     public Collection $eventEntities;
 
     /**
      * @var Collection<int, TaskEntity>
      */
-    #[ORM\OneToMany(targetEntity: TaskEntity::class, mappedBy: 'userId')]
+    #[ORM\OneToMany(targetEntity: TaskEntity::class, mappedBy: 'user')]
     public Collection $taskEntities;
 
     /**
      * @var Collection<int, InputMessageEntity>
      */
-    #[ORM\OneToMany(targetEntity: InputMessageEntity::class, mappedBy: 'userId')]
+    #[ORM\OneToMany(targetEntity: InputMessageEntity::class, mappedBy: 'user')]
     public Collection $inputMessageEntities;
 
 
