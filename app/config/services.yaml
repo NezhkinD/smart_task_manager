@@ -25,3 +25,9 @@ services:
         arguments:
             $saluteSpeechAuthorizationKey: '%env(SALUTE_SPEECH_AUTHORIZATION_KEY)%'
             $saluteSpeechScope: '%env(SALUTE_SPEECH_SCOPE)%'
+
+    App\Service\LlmService:
+        arguments:
+            $llmApiKey: '%env(LLM_API_KEY)%'
+            $llmBaseUrl: '%env(LLM_BASE_URL)%'
+            $llmModel: '%env(LLM_MODEL)%'
