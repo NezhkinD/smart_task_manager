@@ -87,10 +87,10 @@ class SpeechToEventCommand extends Command
             }
 
             // Шаг 2: Парсинг текста через LLM
-            $currentDateTime = (new \DateTime())->format('Y-m-d H:i:s');
-            $io->info("Отправка в LLM (текущая дата: $currentDateTime)...");
+            $now = new \DateTime('now', new \DateTimeZone(LlmService::TIMEZONE));
+            $io->info('Отправка в LLM (текущая дата: ' . $now->format('Y-m-d H:i:s') . ')...');
 
-            $parsedEvent = $this->llmService->parseTextToEvent($text, $currentDateTime);
+            $parsedEvent = $this->llmService->parseTextToEvent($text, $now);
 
             $io->success('LLM успешно распарсил событие');
             $io->table(

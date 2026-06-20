@@ -32,8 +32,9 @@ class EventService
             return $errors;
         }
 
-        $startAt = new \DateTime($dto->startAt);
-        $finishAt = new \DateTime($dto->finishAt);
+        $timezone = new \DateTimeZone(LlmService::TIMEZONE);
+        $startAt = new \DateTime($dto->startAt, $timezone);
+        $finishAt = new \DateTime($dto->finishAt, $timezone);
 
         if ($finishAt <= $startAt) {
             return ['finishAt: Дата окончания должна быть позже даты начала'];
@@ -49,7 +50,7 @@ class EventService
         $event->body = $dto->body;
         $event->startAt = $startAt;
         $event->finishAt = $finishAt;
-        $event->date = new \DateTime($dto->date);
+        $event->date = new \DateTime($dto->date, $timezone);
         $event->type = TypeEnum::from($dto->type);
         $event->user = $user;
         $event->createdAt = new \DateTime();

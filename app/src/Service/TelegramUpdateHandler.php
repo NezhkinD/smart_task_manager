@@ -86,8 +86,8 @@ TEXT;
         $inputMessage = $this->createInputMessage($user, $text, null);
 
         try {
-            $currentDateTime = (new \DateTime())->format('Y-m-d H:i:s');
-            $parsedEvent = $this->llmService->parseTextToEvent($text, $currentDateTime);
+            $now = new \DateTime('now', new \DateTimeZone(LlmService::TIMEZONE));
+            $parsedEvent = $this->llmService->parseTextToEvent($text, $now);
 
             $this->createAndSendEvent($chatId, $user, $inputMessage, $parsedEvent);
         } catch (LlmException $e) {
@@ -130,8 +130,8 @@ TEXT;
             $inputMessage->text = $text;
             $this->entityManager->flush();
 
-            $currentDateTime = (new \DateTime())->format('Y-m-d H:i:s');
-            $parsedEvent = $this->llmService->parseTextToEvent($text, $currentDateTime);
+            $now = new \DateTime('now', new \DateTimeZone(LlmService::TIMEZONE));
+            $parsedEvent = $this->llmService->parseTextToEvent($text, $now);
 
             $this->createAndSendEvent($chatId, $user, $inputMessage, $parsedEvent);
         } catch (SaluteSpeechException $e) {
