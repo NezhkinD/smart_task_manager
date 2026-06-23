@@ -41,9 +41,9 @@ class SaluteSpeechRecognizeCommand extends Command
         $filePath = $input->getArgument('file');
         $formatName = $input->getOption('format');
 
-        $format = AudioFormatEnum::tryFrom($formatName) ?? (constant(AudioFormatEnum::class . '::' . $formatName) ?? null);
+        $format = AudioFormatEnum::tryFromNameOrValue($formatName);
 
-        if (!$format instanceof AudioFormatEnum) {
+        if ($format === null) {
             $io->error("Неизвестный формат: $formatName");
             return Command::FAILURE;
         }

@@ -20,6 +20,12 @@ push:
 
 release: build push
 
+test:
+	docker exec stm_php bash -c "cd /home/app && php bin/phpunit"
+
+coverage:
+	docker exec stm_php bash -c "cd /home/app && XDEBUG_MODE=coverage php bin/phpunit --coverage-text --coverage-filter src"
+
 # === Doctrine (dev) ===
 doctrine_make_entity:
 	docker exec -it $(PHP_CONTAINER_NAME) bash -c "php bin/console make:entity"

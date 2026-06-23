@@ -115,6 +115,19 @@ class SpeechToEventCommandTest extends TestCase
         self::assertSame(Command::FAILURE, $status);
     }
 
+    public function testReturnsFailureOnUnknownFormat(): void
+    {
+        $tester = $this->tester(
+            $this->createStub(SaluteSpeechRecognitionService::class),
+            $this->createStub(LlmService::class),
+            $this->createStub(EventService::class),
+        );
+        $status = $tester->execute(['file' => 'voice.ogg', 'userId' => '1', '--format' => 'BOGUS']);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Неизвестный формат', $tester->getDisplay());
+    }
+
     public function testReturnsFailureOnSpeechException(): void
     {
         $recognition = $this->createStub(SaluteSpeechRecognitionService::class);

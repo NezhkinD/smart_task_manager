@@ -31,6 +31,15 @@ class SaluteSpeechRecognizeCommandTest extends TestCase
         self::assertStringContainsString('Привет мир', $tester->getDisplay());
     }
 
+    public function testReturnsFailureOnUnknownFormat(): void
+    {
+        $tester = $this->tester($this->createStub(SaluteSpeechRecognitionService::class));
+        $status = $tester->execute(['file' => 'voice.ogg', '--format' => 'BOGUS']);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Неизвестный формат', $tester->getDisplay());
+    }
+
     public function testReturnsFailureOnSpeechException(): void
     {
         $recognition = $this->createStub(SaluteSpeechRecognitionService::class);
