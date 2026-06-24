@@ -8,6 +8,17 @@ services:
       networks:
          - internal
 
+   supervisor:
+      restart: unless-stopped
+      env_file:
+         - ./app/.env
+      image: ${DOCKER_REGISTRY}/stm/supervisor:${TAG:-latest}
+      container_name: stm_supervisor
+      depends_on:
+         - db
+      networks:
+         - internal
+
    nginx:
       restart: unless-stopped
       env_file:

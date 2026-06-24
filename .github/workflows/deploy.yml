@@ -72,6 +72,16 @@ jobs:
             ${{ env.IMAGE_BASE }}/stm/nginx:${{ github.ref_name }}
             ${{ env.IMAGE_BASE }}/stm/nginx:latest
 
+      - name: Build & push supervisor image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/Dockerfile.supervisor.prod
+          push: true
+          tags: |
+            ${{ env.IMAGE_BASE }}/stm/supervisor:${{ github.ref_name }}
+            ${{ env.IMAGE_BASE }}/stm/supervisor:latest
+
   # ---------- DEPLOY ----------
   deploy:
     name: Deploy to server
@@ -79,8 +89,19 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - uses: actions/checkout@v4
+
       - name: Set lowercase repository
         run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - name: Copy docker-compose.yaml to server
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: docker-compose.yaml
+          target: ${{ secrets.DEPLOY_PATH }}
 
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1
@@ -94,6 +115,6 @@ jobs:
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
             export DOCKER_REGISTRY=ghcr.io/${{ env.REPO_LC }}
             export TAG=${{ github.ref_name }}
-            docker compose pull php-fpm nginx
-            docker compose up -d
+            docker compose pull php-fpm nginx supervisor
+            docker compose up -d --wait
             docker compose exec -T php-fpm php bin/console doctrine:migrations:migrate --no-interaction
