@@ -1,0 +1,94 @@
+name: Deploy
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BASE: ghcr.io/${{ github.repository }}
+
+jobs:
+  # ---------- TEST ----------
+  test:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: ctype, iconv, mbstring, intl
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
+
+      - name: Run unit tests
+        run: php bin/phpunit
+
+  # ---------- BUILD & PUSH ----------
+  build:
+    name: Build & push images
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push php image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/Dockerfile.php.prod
+          push: true
+          tags: |
+            ${{ env.IMAGE_BASE }}/stm/php:${{ github.ref_name }}
+            ${{ env.IMAGE_BASE }}/stm/php:latest
+
+      - name: Build & push nginx image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/Dockerfile.nginx.prod
+          push: true
+          tags: |
+            ${{ env.IMAGE_BASE }}/stm/nginx:${{ github.ref_name }}
+            ${{ env.IMAGE_BASE }}/stm/nginx:latest
+
+  # ---------- DEPLOY ----------
+  deploy:
+    name: Deploy to server
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
+            export DOCKER_REGISTRY=ghcr.io/${{ github.repository }}
+            export TAG=${{ github.ref_name }}
+            docker compose pull php-fpm nginx
+            docker compose up -d
+            docker compose exec -T php-fpm php bin/console doctrine:migrations:migrate --no-interaction
