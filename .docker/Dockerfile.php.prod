@@ -30,7 +30,7 @@ WORKDIR /home/app
 
 COPY ./app /home/app
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 RUN chown -R www-data:www-data /var/cache
 RUN chmod -R 775 /var/cache
