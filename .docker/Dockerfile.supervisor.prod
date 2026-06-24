@@ -36,6 +36,10 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interactio
 RUN chown -R www-data:www-data /var/cache
 RUN chmod -R 775 /var/cache
 
+RUN mkdir -p /home/app/var/cache /home/app/var/log \
+    && chown -R www-data:www-data /home/app/var \
+    && chmod -R 775 /home/app/var
+
 RUN mkdir -p /var/log/supervisor \
     && chown www-data:www-data /var/log/supervisor \
     && chmod 755 /var/log/supervisor
